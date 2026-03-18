@@ -1,1 +1,16 @@
+plugins:
+  external_link_gate_enabled:
+    default: true
+    client: false
 
+  external_link_gate_message:
+    default: "Please log in or register to view this external link."
+    client: false
+
+  external_link_gate_login_text:
+    default: "Login"
+    client: false
+
+  external_link_gate_register_text:
+    default: "Register"
+    client: false
