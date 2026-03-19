@@ -3,8 +3,8 @@
 # name: discourse-external-link-gate
 # about: Hide external links and gated content from guests or non-entitled groups
 # version: 0.2
-# authors: Greatbenny
-# url: https://github.com/Greatbenny/discourse-external-link-gate
+# authors: Pedro
+# url: https://storefront.com.ng 
 
 enabled_site_setting :external_link_gate_enabled
 
