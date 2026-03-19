@@ -3,6 +3,10 @@ plugins:
     default: true
     client: false
 
+  external_link_gate_hide_external_links:
+    default: true
+    client: false
+
   external_link_gate_message:
     default: "Log in or sign up to view this external link."
     client: false
