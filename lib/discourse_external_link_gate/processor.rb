@@ -58,6 +58,7 @@ module ::DiscourseExternalLinkGate
         next if href.blank?
         next if non_http_link?(href)
         next unless external_link?(href, base_host)
+        next if exempt_external_link?(href)
 
         trigger = %(
           <span
@@ -75,6 +76,38 @@ module ::DiscourseExternalLinkGate
       end
 
       doc.to_html
+    end
+
+    def self.exempt_external_link?(href)
+      uri = URI.parse(href)
+      host = normalize_host(uri.host)
+      return false if host.blank?
+
+      exempt_entries.any? do |entry|
+        entry = entry.to_s.downcase.strip
+        next false if entry.blank?
+
+        entry = entry.sub(%r{\Ahttps?://}i, "")
+        entry = entry.sub(/\Awww\./i, "")
+        entry = entry.split("/").first
+
+        if entry.start_with?("*.")
+          suffix = entry[2..]
+          host == suffix || host.end_with?(".#{suffix}")
+        else
+          host == entry || host.end_with?(".#{entry}")
+        end
+      end
+    rescue URI::InvalidURIError
+      false
+    end
+
+    def self.exempt_entries
+      SiteSetting.external_link_gate_exempt_domains
+        .to_s
+        .split(/[\n,]/)
+        .map(&:strip)
+        .reject(&:blank?)
     end
 
     def self.guest_block(message:)
