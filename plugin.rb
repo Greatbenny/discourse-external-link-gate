@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 # name: discourse-external-link-gate
-# about: Replaces external links in cooked posts with login/register prompts for anonymous users
-# version: 0.1
+# about: Hide external links and gated content from guests or non-entitled groups
+# version: 0.2
 # authors: Greatbenny
 # url: https://github.com/Greatbenny/discourse-external-link-gate
 
@@ -13,23 +13,18 @@ after_initialize do
     PLUGIN_NAME = "discourse-external-link-gate"
   end
 
-  require_relative "lib/discourse_external_link_gate/masker"
+  require_relative "lib/discourse_external_link_gate/processor"
 
   register_asset "stylesheets/common/external-link-gate.scss"
 
   add_to_serializer(:post, :cooked, false) do
     cooked = object.cooked
-    user = scope&.user
-
     return cooked unless SiteSetting.external_link_gate_enabled
-    return cooked if user.present?
 
-    ::DiscourseExternalLinkGate::Masker.mask(
+    ::DiscourseExternalLinkGate::Processor.process(
       cooked,
-      Discourse.base_url,
-      message: SiteSetting.external_link_gate_message,
-      login_text: SiteSetting.external_link_gate_login_text,
-      register_text: SiteSetting.external_link_gate_register_text
+      user: scope&.user,
+      base_url: Discourse.base_url
     )
   end
 end
