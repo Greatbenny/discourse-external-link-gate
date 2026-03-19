@@ -43,3 +43,6 @@ Social login buttons only appear if enabled in Discourse.
 cd /var/discourse
 ./launcher rebuild app
 
+##one command to update from server
+
+cd /var/discourse && rm -rf plugins/discourse-external-link-gate && ./launcher rebuild app
