@@ -4,13 +4,25 @@ plugins:
     client: false
 
   external_link_gate_message:
-    default: "Please log in or register to view this external link."
+    default: "Log in or sign up to view this external link."
     client: false
 
-  external_link_gate_login_text:
-    default: "Login"
+  external_link_gate_hidden_message:
+    default: "This content is hidden. Log in or sign up to continue."
     client: false
 
-  external_link_gate_register_text:
-    default: "Register"
+  external_link_gate_upgrade_message:
+    default: "This content is for members only."
     client: false
+
+  external_link_gate_upgrade_button_text:
+    default: "Upgrade account"
+    client: false
+
+  external_link_gate_upgrade_url:
+    default: "/signup"
+    client: false
+
+  external_link_gate_modal_intro:
+    default: "By continuing, you agree to this community’s Terms of Service and acknowledge the Privacy Policy."
+    client: true
