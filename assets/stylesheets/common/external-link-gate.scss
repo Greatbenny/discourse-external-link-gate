@@ -7,24 +7,24 @@
 .elg-locked-block {
   position: relative;
   min-height: 170px;
-  border-radius: 10px;
+  border-radius: 4px;
   overflow: hidden;
   margin: 0.75rem 0;
-  background: rgba(255, 255, 255, 0.2);
   cursor: pointer;
+  background: rgba(255, 255, 255, 0.16);
 }
 
 .elg-locked-block__blur {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45)),
+    linear-gradient(rgba(230, 230, 230, 0.58), rgba(230, 230, 230, 0.58)),
     repeating-linear-gradient(
       180deg,
       rgba(120, 120, 120, 0.18) 0px,
-      rgba(120, 120, 120, 0.18) 12px,
-      rgba(255, 255, 255, 0.14) 12px,
-      rgba(255, 255, 255, 0.14) 24px
+      rgba(120, 120, 120, 0.18) 14px,
+      rgba(255, 255, 255, 0.14) 14px,
+      rgba(255, 255, 255, 0.14) 28px
     );
   filter: blur(6px);
   transform: scale(1.03);
@@ -37,7 +37,7 @@
   width: min(510px, calc(100% - 32px));
   transform: translate(-50%, -50%);
   background: #f7f7f7;
-  border: 1px solid #d7d7d7;
+  border: 1px solid #d2d2d2;
   border-radius: 4px;
   box-shadow: 0 2px 18px rgba(0, 0, 0, 0.16);
   text-align: center;
@@ -48,7 +48,7 @@
 .elg-locked-block__message {
   color: #666;
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.45;
   margin-bottom: 16px;
 }
 
@@ -63,29 +63,41 @@
   white-space: nowrap;
 }
 
-html.elg-modal-open .modal-backdrop,
 html.elg-modal-open .d-modal-container::before,
+html.elg-modal-open .modal-backdrop,
 html.elg-modal-open .mfp-bg {
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   background: rgba(230, 230, 230, 0.58) !important;
 }
 
-.elg-native-login-modal .modal-inner-container,
 .elg-native-login-modal .d-modal__container,
-.elg-native-login-modal .modal-body,
-.elg-native-login-modal {
-  border-radius: 4px;
-}
-
 .elg-native-login-modal .modal-inner-container,
-.elg-native-login-modal .d-modal__container {
-  box-shadow: 0 2px 18px rgba(0, 0, 0, 0.16);
-  border: 1px solid #d7d7d7;
+.elg-native-login-modal .login-modal {
   background: #f7f7f7;
+  border: 1px solid #d2d2d2;
+  border-radius: 4px;
+  box-shadow: 0 2px 18px rgba(0, 0, 0, 0.16);
 }
 
-.elg-native-login-modal .elg-login-intro {
+.elg-native-login-modal .d-modal__header,
+.elg-native-login-modal .modal-header {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.elg-native-login-modal .d-modal__title,
+.elg-native-login-modal .modal-title {
+  display: none;
+}
+
+.elg-native-login-modal .d-modal__body,
+.elg-native-login-modal .modal-body {
+  padding-top: 22px;
+  padding-bottom: 22px;
+}
+
+.elg-login-intro {
   text-align: center;
   color: #666;
   font-size: 16px;
@@ -93,26 +105,10 @@ html.elg-modal-open .mfp-bg {
   margin: 2px 10px 18px;
 }
 
-.elg-native-login-modal .modal-header,
-.elg-native-login-modal .d-modal__header {
-  border-bottom: 0;
-  padding-bottom: 0;
-}
-
-.elg-native-login-modal .modal-title,
-.elg-native-login-modal .d-modal__title {
-  display: none;
-}
-
-.elg-native-login-modal .modal-body,
-.elg-native-login-modal .d-modal__body {
-  padding-top: 22px;
-  padding-bottom: 22px;
-}
-
 .elg-native-login-modal .btn-social,
 .elg-native-login-modal .social-login .btn,
-.elg-native-login-modal .login-buttons .btn {
+.elg-native-login-modal .login-buttons .btn,
+.elg-native-login-modal .btn.btn-social {
   border-radius: 2px;
   min-height: 38px;
   box-shadow: none;
@@ -121,6 +117,7 @@ html.elg-modal-open .mfp-bg {
 .elg-native-login-modal .login-secondary,
 .elg-native-login-modal .signup-cta,
 .elg-native-login-modal .create-account,
-.elg-native-login-modal .login-footer {
+.elg-native-login-modal .login-footer,
+.elg-native-login-modal .new-account-link {
   text-align: center;
 }
