@@ -1,8 +1,8 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
 
-const COUNT_KEY = "elg_guest_gate_count_v2";
-const LAST_PATH_KEY = "elg_guest_gate_last_path_v2";
-const MODAL_OPENED_KEY = "elg_guest_gate_modal_opened_v2";
+const COUNT_KEY = "elg_guest_gate_count_v3";
+const LAST_PATH_KEY = "elg_guest_gate_last_path_v3";
+const PAGE_GATE_OPEN_KEY = "elg_guest_gate_open_v3";
 
 function splitSetting(value) {
   return (value || "")
@@ -26,7 +26,6 @@ function isBotUserAgent(siteSettings) {
 
 function isExcludedPath(path, siteSettings) {
   const excluded = splitSetting(siteSettings.guest_gate_exempt_paths);
-
   return excluded.some((prefix) => path.startsWith(prefix));
 }
 
@@ -50,7 +49,7 @@ function removeGateBlur() {
   document.documentElement.classList.remove("elg-gate-screen");
 }
 
-function markLoginModal(siteSettings) {
+function decorateLoginModal(siteSettings) {
   requestAnimationFrame(() => {
     const modal =
       document.querySelector(".login-modal") ||
@@ -82,7 +81,7 @@ function markLoginModal(siteSettings) {
   });
 }
 
-function watchForModalClose() {
+function observeModalClose() {
   const observer = new MutationObserver(() => {
     const stillOpen =
       document.querySelector(".elg-native-login-modal") ||
@@ -92,7 +91,7 @@ function watchForModalClose() {
     if (!stillOpen) {
       document.documentElement.classList.remove("elg-modal-open");
       removeGateBlur();
-      sessionStorage.removeItem(MODAL_OPENED_KEY);
+      sessionStorage.removeItem(PAGE_GATE_OPEN_KEY);
     }
   });
 
@@ -102,35 +101,60 @@ function watchForModalClose() {
   });
 }
 
+function openViaHeaderButton(selector) {
+  const btn = document.querySelector(selector);
+  if (btn) {
+    btn.click();
+    return true;
+  }
+  return false;
+}
+
 export default {
   name: "external-link-gate",
 
   initialize(container) {
     withPluginApi("1.34.0", (api) => {
       const siteSettings = container.lookup("service:site-settings");
-      const modalService = container.lookup("service:modal");
 
-      watchForModalClose();
+      observeModalClose();
 
-      const openNativeLogin = async () => {
-        let LoginModalClass = null;
-
+      const applicationController = (() => {
         try {
-          LoginModalClass =
-            container.factoryFor("component:modal/login")?.class || null;
-        } catch (e) {
-          LoginModalClass = null;
+          return container.lookup("controller:application");
+        } catch {
+          return null;
         }
+      })();
 
-        if (LoginModalClass && modalService?.show) {
-          addGateBlur();
-          sessionStorage.setItem(MODAL_OPENED_KEY, "1");
-          await modalService.show(LoginModalClass, { model: {} });
-          markLoginModal(siteSettings);
+      const openLoginModal = () => {
+        addGateBlur();
+
+        if (applicationController?.send) {
+          applicationController.send("showLogin");
+          decorateLoginModal(siteSettings);
           return;
         }
 
-        window.location.href = "/login";
+        if (openViaHeaderButton(".header-buttons .login-button, .login-button")) {
+          decorateLoginModal(siteSettings);
+          return;
+        }
+      };
+
+      const openSignupModal = () => {
+        addGateBlur();
+
+        if (applicationController?.send) {
+          applicationController.send("showCreateAccount");
+          decorateLoginModal(siteSettings);
+          return;
+        }
+
+        if (openViaHeaderButton(".header-buttons .sign-up-button, .sign-up-button")) {
+          decorateLoginModal(siteSettings);
+          return;
+        }
       };
 
       const shouldRunGuestGate = () => {
@@ -147,11 +171,7 @@ export default {
         }
 
         const path = currentPath();
-        if (!isQualifyingPath(path, siteSettings)) {
-          return false;
-        }
-
-        return true;
+        return isQualifyingPath(path, siteSettings);
       };
 
       const incrementGuestPageCount = () => {
@@ -182,37 +202,24 @@ export default {
           return;
         }
 
-        if (count >= threshold && !sessionStorage.getItem(MODAL_OPENED_KEY)) {
-          openNativeLogin();
+        if (count >= threshold && !sessionStorage.getItem(PAGE_GATE_OPEN_KEY)) {
+          sessionStorage.setItem(PAGE_GATE_OPEN_KEY, "1");
+          openLoginModal();
         }
       };
 
       const clickHandler = (event) => {
-        const trigger = event.target.closest("[data-elg-trigger]");
-        if (!trigger) {
-          return;
-        }
-
-        const action = trigger.dataset.elgTrigger;
-
-        if (action === "login") {
+        const opener = event.target.closest("[data-elg-open]");
+        if (opener) {
           event.preventDefault();
-          openNativeLogin();
-          return;
-        }
 
-        if (action === "upgrade") {
-          const anchor = trigger.querySelector("a[href]");
-          if (anchor) {
-            return;
+          const action = opener.dataset.elgOpen;
+          if (action === "login") {
+            openLoginModal();
+          } else if (action === "signup") {
+            openSignupModal();
           }
-
-          const upgradeUrl =
-            trigger.dataset.elgUpgradeUrl ||
-            siteSettings.external_link_gate_upgrade_url ||
-            "/signup";
-
-          window.location.href = upgradeUrl;
+          return;
         }
       };
 
@@ -221,20 +228,25 @@ export default {
           return;
         }
 
-        const trigger = event.target.closest("[data-elg-trigger='login']");
-        if (!trigger) {
+        const opener = event.target.closest("[data-elg-open]");
+        if (!opener) {
           return;
         }
 
         event.preventDefault();
-        openNativeLogin();
+
+        const action = opener.dataset.elgOpen;
+        if (action === "login") {
+          openLoginModal();
+        } else if (action === "signup") {
+          openSignupModal();
+        }
       };
 
       document.addEventListener("click", clickHandler);
       document.addEventListener("keydown", keyHandler);
 
       api.onPageChange(() => {
-        sessionStorage.removeItem(MODAL_OPENED_KEY);
         maybeOpenPageGate();
       });
 
