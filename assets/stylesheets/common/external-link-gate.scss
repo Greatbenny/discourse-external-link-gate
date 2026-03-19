@@ -63,12 +63,36 @@
   white-space: nowrap;
 }
 
+html.elg-gate-screen #main-outlet,
+html.elg-gate-screen .wrap,
+html.elg-gate-screen .list-container,
+html.elg-gate-screen .topic-area,
+html.elg-gate-screen .topic-post,
+html.elg-gate-screen .topic-body,
+html.elg-gate-screen .topic-map,
+html.elg-gate-screen .discourse-adplugin {
+  filter: blur(6px);
+}
+
+html.elg-gate-screen body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(230, 230, 230, 0.42);
+  z-index: 1000;
+  pointer-events: none;
+}
+
 html.elg-modal-open .d-modal-container::before,
 html.elg-modal-open .modal-backdrop,
 html.elg-modal-open .mfp-bg {
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   background: rgba(230, 230, 230, 0.58) !important;
+}
+
+.elg-native-login-modal {
+  z-index: 1101;
 }
 
 .elg-native-login-modal .d-modal__container,
@@ -78,6 +102,7 @@ html.elg-modal-open .mfp-bg {
   border: 1px solid #d2d2d2;
   border-radius: 4px;
   box-shadow: 0 2px 18px rgba(0, 0, 0, 0.16);
+  max-width: 510px;
 }
 
 .elg-native-login-modal .d-modal__header,
@@ -112,6 +137,11 @@ html.elg-modal-open .mfp-bg {
   border-radius: 2px;
   min-height: 38px;
   box-shadow: none;
+}
+
+.elg-native-login-modal .social-login,
+.elg-native-login-modal .login-buttons {
+  justify-content: center;
 }
 
 .elg-native-login-modal .login-secondary,
