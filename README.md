@@ -40,6 +40,19 @@ Social login buttons only appear if enabled in Discourse.
 
 [gate groups="premium,vip,subscribers" upgrade="/upgrade"]Paid content[/gate]
 
+## External link allowlist
+
+Admin setting:
+
+- `external_link_gate_exempt_domains`
+
+Examples:
+
+```text
+youtube.com
+youtu.be
+*.trustedpartner.com
+
 cd /var/discourse
 ./launcher rebuild app
 
