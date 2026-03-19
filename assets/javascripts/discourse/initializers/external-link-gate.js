@@ -1,14 +1,11 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
-import showModal from "discourse/lib/show-modal";
-import { schedule } from "@ember/runloop";
 
-function markLoginModal() {
-  schedule("afterRender", () => {
+function addElgModalClass() {
+  requestAnimationFrame(() => {
     const modal =
       document.querySelector(".login-modal") ||
       document.querySelector(".d-modal.login-modal") ||
-      document.querySelector(".modal.login-modal") ||
-      document.querySelector("[data-key='login']");
+      document.querySelector(".d-modal");
 
     if (!modal) {
       return;
@@ -16,20 +13,17 @@ function markLoginModal() {
 
     modal.classList.add("elg-native-login-modal");
 
-    let intro = modal.querySelector(".elg-login-intro");
-    if (!intro) {
-      intro = document.createElement("div");
+    const body =
+      modal.querySelector(".d-modal__body") ||
+      modal.querySelector(".modal-body") ||
+      modal;
+
+    if (body && !body.querySelector(".elg-login-intro")) {
+      const intro = document.createElement("div");
       intro.className = "elg-login-intro";
       intro.textContent =
         window?.Discourse?.SiteSettings?.external_link_gate_modal_intro ||
         "By continuing, you agree to this community’s Terms of Service and acknowledge the Privacy Policy.";
-
-      const body =
-        modal.querySelector(".modal-body") ||
-        modal.querySelector(".d-modal__body") ||
-        modal.querySelector(".login-modal-body") ||
-        modal;
-
       body.prepend(intro);
     }
 
@@ -37,12 +31,12 @@ function markLoginModal() {
   });
 }
 
-function cleanupModalClassWhenClosed() {
+function watchForModalClose() {
   const observer = new MutationObserver(() => {
     const stillOpen =
       document.querySelector(".elg-native-login-modal") ||
       document.querySelector(".login-modal") ||
-      document.querySelector(".d-modal.login-modal");
+      document.querySelector(".d-modal");
 
     if (!stillOpen) {
       document.documentElement.classList.remove("elg-modal-open");
@@ -58,16 +52,35 @@ function cleanupModalClassWhenClosed() {
 export default {
   name: "external-link-gate",
 
-  initialize() {
-    withPluginApi("0.8.7", (api) => {
-      cleanupModalClassWhenClosed();
+  initialize(container) {
+    withPluginApi("1.34.0", (api) => {
+      watchForModalClose();
 
-      const openNativeLogin = () => {
-        showModal("login");
-        markLoginModal();
+      const modalService = container.lookup("service:modal");
+
+      const openNativeLogin = async () => {
+        let LoginModalClass = null;
+
+        try {
+          LoginModalClass =
+            container.factoryFor("component:modal/login")?.class || null;
+        } catch (e) {
+          LoginModalClass = null;
+        }
+
+        if (LoginModalClass && modalService?.show) {
+          await modalService.show(LoginModalClass, {
+            model: {},
+          });
+          addElgModalClass();
+          return;
+        }
+
+        // fallback if resolver path differs on this build
+        window.location.href = "/login";
       };
 
-      const handler = (event) => {
+      const clickHandler = (event) => {
         const trigger = event.target.closest("[data-elg-trigger]");
         if (!trigger) {
           return;
@@ -82,8 +95,8 @@ export default {
         }
 
         if (action === "upgrade") {
-          const link = trigger.querySelector("a[href]");
-          if (link) {
+          const anchor = trigger.querySelector("a[href]");
+          if (anchor) {
             return;
           }
 
@@ -110,11 +123,11 @@ export default {
         openNativeLogin();
       };
 
-      document.addEventListener("click", handler);
+      document.addEventListener("click", clickHandler);
       document.addEventListener("keydown", keyHandler);
 
       api.cleanupStream(() => {
-        document.removeEventListener("click", handler);
+        document.removeEventListener("click", clickHandler);
         document.removeEventListener("keydown", keyHandler);
       });
     });
