@@ -1,38 +1,126 @@
-.external-link-gate {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  padding: 0.65rem 0.85rem;
-  margin: 0.1rem 0.2rem;
-  border: 1px solid var(--primary-low);
-  border-radius: 8px;
-  background: var(--secondary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  vertical-align: middle;
-  max-width: 100%;
+.elg-link-trigger {
+  color: var(--tertiary);
+  text-decoration: underline;
+  cursor: pointer;
 }
 
-.external-link-gate__message {
-  font-size: 0.93em;
-  color: var(--primary-high);
-  line-height: 1.3;
+.elg-locked-block {
+  position: relative;
+  min-height: 170px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 0.75rem 0;
+  background: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
 }
 
-.external-link-gate__actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  flex-wrap: wrap;
+.elg-locked-block__blur {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45)),
+    repeating-linear-gradient(
+      180deg,
+      rgba(120, 120, 120, 0.18) 0px,
+      rgba(120, 120, 120, 0.18) 12px,
+      rgba(255, 255, 255, 0.14) 12px,
+      rgba(255, 255, 255, 0.14) 24px
+    );
+  filter: blur(6px);
+  transform: scale(1.03);
 }
 
-.external-link-gate__login.btn,
-.external-link-gate__register.btn {
+.elg-locked-block__card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(510px, calc(100% - 32px));
+  transform: translate(-50%, -50%);
+  background: #f7f7f7;
+  border: 1px solid #d7d7d7;
+  border-radius: 4px;
+  box-shadow: 0 2px 18px rgba(0, 0, 0, 0.16);
+  text-align: center;
+  padding: 28px 24px;
+  z-index: 2;
+}
+
+.elg-locked-block__message {
+  color: #666;
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.elg-locked-block__meta {
+  color: #8a8a8a;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.elg-locked-block__button.btn {
   margin: 0;
   white-space: nowrap;
 }
 
-.external-link-gate__register.btn {
-  background: transparent;
-  border: 1px solid var(--primary-low-mid);
+html.elg-modal-open .modal-backdrop,
+html.elg-modal-open .d-modal-container::before,
+html.elg-modal-open .mfp-bg {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  background: rgba(230, 230, 230, 0.58) !important;
+}
+
+.elg-native-login-modal .modal-inner-container,
+.elg-native-login-modal .d-modal__container,
+.elg-native-login-modal .modal-body,
+.elg-native-login-modal {
+  border-radius: 4px;
+}
+
+.elg-native-login-modal .modal-inner-container,
+.elg-native-login-modal .d-modal__container {
+  box-shadow: 0 2px 18px rgba(0, 0, 0, 0.16);
+  border: 1px solid #d7d7d7;
+  background: #f7f7f7;
+}
+
+.elg-native-login-modal .elg-login-intro {
+  text-align: center;
+  color: #666;
+  font-size: 16px;
+  line-height: 1.45;
+  margin: 2px 10px 18px;
+}
+
+.elg-native-login-modal .modal-header,
+.elg-native-login-modal .d-modal__header {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.elg-native-login-modal .modal-title,
+.elg-native-login-modal .d-modal__title {
+  display: none;
+}
+
+.elg-native-login-modal .modal-body,
+.elg-native-login-modal .d-modal__body {
+  padding-top: 22px;
+  padding-bottom: 22px;
+}
+
+.elg-native-login-modal .btn-social,
+.elg-native-login-modal .social-login .btn,
+.elg-native-login-modal .login-buttons .btn {
+  border-radius: 2px;
+  min-height: 38px;
+  box-shadow: none;
+}
+
+.elg-native-login-modal .login-secondary,
+.elg-native-login-modal .signup-cta,
+.elg-native-login-modal .create-account,
+.elg-native-login-modal .login-footer {
+  text-align: center;
 }
