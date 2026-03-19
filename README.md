@@ -1,19 +1,45 @@
 # discourse-external-link-gate
 
-A Discourse plugin that hides external links in cooked posts from anonymous users and replaces them with Login / Register buttons.
+A Discourse plugin that:
 
-## Features
+- hides external links from guests
+- opens native Discourse login on click
+- supports gated content with shortcode
+- supports group-restricted content with upgrade CTA
 
-- Logged-in users see normal external links
-- Anonymous users do not see external links
-- Internal links stay untouched
-- Useful for guest gating and reducing external link exposure to crawlers that see anonymous HTML
+## Shortcodes
 
-## Install
+### Guests only
+```text
+[gate]This text is hidden from guests[/gate]
 
-On your Discourse server:
+[gate groups="premium,vip" upgrade="/upgrade"]Premium content here[/gate]
 
-```bash
+[gate groups="premium" upgrade="/pricing" upgrade_message="Upgrade to Premium to view this section." upgrade_button="Upgrade Now"]
+Secret content
+[/gate]
+
 cd /var/discourse
-git clone https://github.com/Greatbenny/discourse-external-link-gate.git plugins/discourse-external-link-gate
 ./launcher rebuild app
+
+Notes
+External links are masked for anonymous users at cooked-post serialization time.
+Login remains native to Discourse.
+Social login buttons only appear if enabled in Discourse.
+
+---
+
+## shortcode usage
+
+### Hide from guests
+```text
+[gate]This is hidden from guests.[/gate]
+
+
+[gate groups="premium"]This is premium-only content.[/gate]
+
+[gate groups="premium,vip,subscribers" upgrade="/upgrade"]Paid content[/gate]
+
+cd /var/discourse
+./launcher rebuild app
+
