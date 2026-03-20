@@ -66,12 +66,12 @@ module ::DiscourseExternalLinkGate
             <span class="elg-inline-gate__label">
               #{CGI.escapeHTML(SiteSetting.external_link_gate_message)}
             </span>
-            <button class="btn btn-primary elg-inline-gate__btn" data-elg-open="login" type="button">
+            <a class="btn btn-primary elg-inline-gate__btn" href="/login">
               Log in
-            </button>
-            <button class="btn elg-inline-gate__btn" data-elg-open="signup" type="button">
+            </a>
+            <a class="btn elg-inline-gate__btn" href="/signup">
               Register
-            </button>
+            </a>
           </span>
         )
 
@@ -115,17 +115,17 @@ module ::DiscourseExternalLinkGate
 
     def self.guest_block(message:)
       %(
-        <div class="elg-locked-block" role="button" tabindex="0">
+        <div class="elg-locked-block">
           <div class="elg-locked-block__blur"></div>
           <div class="elg-locked-block__card">
             <div class="elg-locked-block__message">#{CGI.escapeHTML(message)}</div>
             <div class="elg-locked-block__actions">
-              <button class="btn btn-primary elg-locked-block__button" data-elg-open="login" type="button">
+              <a class="btn btn-primary elg-locked-block__button" href="/login">
                 Log in
-              </button>
-              <button class="btn elg-locked-block__button" data-elg-open="signup" type="button">
+              </a>
+              <a class="btn elg-locked-block__button" href="/signup">
                 Register
-              </button>
+              </a>
             </div>
           </div>
         </div>
