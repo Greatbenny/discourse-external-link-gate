@@ -1,7 +1,22 @@
-.elg-link-trigger {
-  color: var(--tertiary);
-  text-decoration: underline;
-  cursor: pointer;
+.elg-inline-gate {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 10px;
+  border: 1px solid #d2d2d2;
+  border-radius: 4px;
+  background: #f7f7f7;
+}
+
+.elg-inline-gate__label {
+  color: #666;
+  font-size: 14px;
+}
+
+.elg-inline-gate__btn.btn {
+  margin: 0;
+  border-radius: 2px;
 }
 
 .elg-locked-block {
@@ -10,7 +25,6 @@
   border-radius: 4px;
   overflow: hidden;
   margin: 0.75rem 0;
-  cursor: pointer;
   background: rgba(255, 255, 255, 0.16);
 }
 
@@ -52,6 +66,13 @@
   margin-bottom: 16px;
 }
 
+.elg-locked-block__actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .elg-locked-block__meta {
   color: #8a8a8a;
   font-size: 13px;
@@ -60,196 +81,6 @@
 
 .elg-locked-block__button.btn {
   margin: 0;
+  border-radius: 2px;
   white-space: nowrap;
-}
-
-html.elg-gate-screen #main-outlet,
-html.elg-gate-screen .wrap,
-html.elg-gate-screen .list-container,
-html.elg-gate-screen .topic-area,
-html.elg-gate-screen .topic-post,
-html.elg-gate-screen .topic-body,
-html.elg-gate-screen .topic-map,
-html.elg-gate-screen .topic-avatar,
-html.elg-gate-screen .topic-meta-data {
-  filter: blur(6px);
-}
-
-.elg-guest-gate-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1100;
-}
-
-.elg-guest-gate-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(230, 230, 230, 0.58);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-}
-
-.elg-guest-gate-card {
-  position: absolute;
-  left: 50%;
-  top: 43%;
-  transform: translate(-50%, -50%);
-  width: 510px;
-  max-width: calc(100vw - 32px);
-  background: #f7f7f7;
-  border: 1px solid #d2d2d2;
-  border-radius: 4px;
-  box-shadow: 0 2px 18px rgba(0, 0, 0, 0.16);
-  text-align: center;
-  padding: 32px 28px 26px;
-}
-
-.elg-guest-gate-heading {
-  color: #555;
-  font-size: 20px;
-  line-height: 1.35;
-  margin-bottom: 14px;
-  font-weight: 500;
-}
-
-.elg-guest-gate-intro {
-  color: #666;
-  font-size: 16px;
-  line-height: 1.45;
-  margin-bottom: 22px;
-}
-
-.elg-auth-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 22px;
-}
-
-.elg-auth-or {
-  color: #999;
-  font-size: 14px;
-}
-
-.elg-auth-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 38px;
-  padding: 0 14px;
-  border: 1px solid #d2d2d2;
-  border-radius: 2px;
-  background: #fff;
-  color: #555;
-  text-decoration: none;
-  box-shadow: none;
-}
-
-.elg-guest-gate-footer {
-  color: #888;
-  font-size: 14px;
-}
-
-.elg-footer-link {
-  background: transparent;
-  border: 0;
-  color: #888;
-  cursor: pointer;
-  padding: 0;
-  font-size: 14px;
-}
-
-.elg-footer-link:hover {
-  text-decoration: underline;
-}
-
-.elg-footer-sep {
-  margin: 0 8px;
-  color: #aaa;
-}
-
-
-
-
-
-
-
-html.elg-gate-screen body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: rgba(230, 230, 230, 0.42);
-  z-index: 1000;
-  pointer-events: none;
-}
-
-html.elg-modal-open .d-modal-container::before,
-html.elg-modal-open .modal-backdrop,
-html.elg-modal-open .mfp-bg {
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  background: rgba(230, 230, 230, 0.58) !important;
-}
-
-.elg-native-login-modal {
-  z-index: 1101;
-}
-
-.elg-native-login-modal .d-modal__container,
-.elg-native-login-modal .modal-inner-container,
-.elg-native-login-modal .login-modal {
-  background: #f7f7f7;
-  border: 1px solid #d2d2d2;
-  border-radius: 4px;
-  box-shadow: 0 2px 18px rgba(0, 0, 0, 0.16);
-  max-width: 510px;
-}
-
-.elg-native-login-modal .d-modal__header,
-.elg-native-login-modal .modal-header {
-  border-bottom: 0;
-  padding-bottom: 0;
-}
-
-.elg-native-login-modal .d-modal__title,
-.elg-native-login-modal .modal-title {
-  display: none;
-}
-
-.elg-native-login-modal .d-modal__body,
-.elg-native-login-modal .modal-body {
-  padding-top: 22px;
-  padding-bottom: 22px;
-}
-
-.elg-login-intro {
-  text-align: center;
-  color: #666;
-  font-size: 16px;
-  line-height: 1.45;
-  margin: 2px 10px 18px;
-}
-
-.elg-native-login-modal .btn-social,
-.elg-native-login-modal .social-login .btn,
-.elg-native-login-modal .login-buttons .btn,
-.elg-native-login-modal .btn.btn-social {
-  border-radius: 2px;
-  min-height: 38px;
-  box-shadow: none;
-}
-
-.elg-native-login-modal .social-login,
-.elg-native-login-modal .login-buttons {
-  justify-content: center;
-}
-
-.elg-native-login-modal .login-secondary,
-.elg-native-login-modal .signup-cta,
-.elg-native-login-modal .create-account,
-.elg-native-login-modal .login-footer,
-.elg-native-login-modal .new-account-link {
-  text-align: center;
 }
