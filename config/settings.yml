@@ -30,27 +30,3 @@ plugins:
   external_link_gate_exempt_domains:
     default: ""
     client: false
-
-  guest_gate_enabled:
-    default: true
-    client: true
-
-  guest_gate_after_page_views:
-    default: 3
-    client: true
-
-  guest_gate_topic_pages_only:
-    default: true
-    client: true
-
-  guest_gate_modal_intro:
-    default: "By continuing, you agree to this community’s Terms of Service and acknowledge the Privacy Policy."
-    client: true
-
-  guest_gate_exempt_paths:
-    default: "/login,/signup,/session,/auth,/u,/about,/faq,/guidelines,/tos,/privacy"
-    client: true
-
-  guest_gate_exempt_user_agents:
-    default: "googlebot,bingbot,duckduckbot,baiduspider,yandexbot,facebookexternalhit,twitterbot,linkedinbot,slackbot,discordbot,whatsapp,telegrambot,skypeuripreview"
-    client: true
