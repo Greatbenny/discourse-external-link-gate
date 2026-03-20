@@ -1,8 +1,8 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
 
-const COUNT_KEY = "elg_guest_gate_count_v3";
-const LAST_PATH_KEY = "elg_guest_gate_last_path_v3";
-const PAGE_GATE_OPEN_KEY = "elg_guest_gate_open_v3";
+const COUNT_KEY = "elg_guest_gate_count_v4";
+const LAST_PATH_KEY = "elg_guest_gate_last_path_v4";
+const OVERLAY_SHOWN_KEY = "elg_guest_gate_overlay_shown_v4";
 
 function splitSetting(value) {
   return (value || "")
@@ -49,65 +49,171 @@ function removeGateBlur() {
   document.documentElement.classList.remove("elg-gate-screen");
 }
 
-function decorateLoginModal(siteSettings) {
-  requestAnimationFrame(() => {
-    const modal =
-      document.querySelector(".login-modal") ||
-      document.querySelector(".d-modal.login-modal") ||
-      document.querySelector(".d-modal");
+function removeOverlay() {
+  document.querySelector(".elg-guest-gate-overlay")?.remove();
+  removeGateBlur();
+  sessionStorage.removeItem(OVERLAY_SHOWN_KEY);
+}
 
-    if (!modal) {
+async function fetchLoginMarkup() {
+  const response = await fetch("/login", {
+    credentials: "same-origin",
+    headers: {
+      "X-Requested-With": "XMLHttpRequest",
+    },
+  });
+
+  const html = await response.text();
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = html;
+  return wrapper;
+}
+
+function extractAuthButtons(markup) {
+  const candidates = [
+    ...markup.querySelectorAll("a.btn-social"),
+    ...markup.querySelectorAll("button.btn-social"),
+    ...markup.querySelectorAll(".social-login a"),
+    ...markup.querySelectorAll(".social-login button"),
+    ...markup.querySelectorAll(".login-buttons a[href*='/auth/']"),
+    ...markup.querySelectorAll(".login-buttons button[data-provider]"),
+  ];
+
+  const seen = new Set();
+  const buttons = [];
+
+  for (const el of candidates) {
+    const text = (el.textContent || "").trim();
+    const href = el.getAttribute("href") || "";
+    const provider = el.dataset.provider || href || text;
+
+    if (!text || seen.has(provider)) {
+      continue;
+    }
+
+    seen.add(provider);
+
+    buttons.push({
+      text,
+      href,
+      className: el.className || "",
+      provider: el.dataset.provider || "",
+    });
+  }
+
+  return buttons;
+}
+
+function buildSocialButtons(buttons) {
+  if (!buttons.length) {
+    return "";
+  }
+
+  const limited = buttons.slice(0, 2);
+
+  return `
+    <div class="elg-auth-row">
+      ${limited
+        .map((btn, index) => {
+          const or = index === 1 ? `<span class="elg-auth-or">or</span>` : "";
+          const hrefAttr = btn.href ? `href="${btn.href}"` : `href="/login"`;
+          return `
+            ${or}
+            <a class="elg-auth-btn ${btn.className}" ${hrefAttr}>
+              ${btn.text}
+            </a>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
+}
+
+function buildOverlayHtml(siteSettings, socialButtonsHtml) {
+  const intro =
+    siteSettings.guest_gate_modal_intro ||
+    "By continuing, you agree to this community’s Terms of Service and acknowledge the Privacy Policy.";
+
+  return `
+    <div class="elg-guest-gate-overlay" data-elg-overlay>
+      <div class="elg-guest-gate-backdrop"></div>
+      <div class="elg-guest-gate-card">
+        <div class="elg-guest-gate-heading">
+          Looks like you’re enjoying the discussion
+        </div>
+
+        <div class="elg-guest-gate-intro">
+          ${intro}
+        </div>
+
+        ${socialButtonsHtml}
+
+        <div class="elg-guest-gate-footer">
+          <button class="elg-footer-link" data-elg-open="login" type="button">
+            I Have an Account
+          </button>
+          <span class="elg-footer-sep">·</span>
+          <button class="elg-footer-link" data-elg-open="signup" type="button">
+            Sign Up With Email
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function attachOverlayEvents(container) {
+  const applicationController = (() => {
+    try {
+      return container.lookup("controller:application");
+    } catch {
+      return null;
+    }
+  })();
+
+  document.querySelector(".elg-guest-gate-overlay")?.addEventListener("click", (event) => {
+    const opener = event.target.closest("[data-elg-open]");
+    if (!opener) {
       return;
     }
 
-    modal.classList.add("elg-native-login-modal");
+    event.preventDefault();
 
-    const body =
-      modal.querySelector(".d-modal__body") ||
-      modal.querySelector(".modal-body") ||
-      modal;
+    const action = opener.dataset.elgOpen;
 
-    if (body && !body.querySelector(".elg-login-intro")) {
-      const intro = document.createElement("div");
-      intro.className = "elg-login-intro";
-      intro.textContent =
-        siteSettings.guest_gate_modal_intro ||
-        "By continuing, you agree to this community’s Terms of Service and acknowledge the Privacy Policy.";
-      body.prepend(intro);
+    if (action === "login") {
+      if (applicationController?.send) {
+        applicationController.send("showLogin");
+      }
+      return;
     }
 
-    document.documentElement.classList.add("elg-modal-open");
-    addGateBlur();
+    if (action === "signup") {
+      if (applicationController?.send) {
+        applicationController.send("showCreateAccount");
+      }
+    }
   });
 }
 
-function observeModalClose() {
-  const observer = new MutationObserver(() => {
-    const stillOpen =
-      document.querySelector(".elg-native-login-modal") ||
-      document.querySelector(".login-modal") ||
-      document.querySelector(".d-modal.login-modal");
-
-    if (!stillOpen) {
-      document.documentElement.classList.remove("elg-modal-open");
-      removeGateBlur();
-      sessionStorage.removeItem(PAGE_GATE_OPEN_KEY);
-    }
-  });
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-  });
-}
-
-function openViaHeaderButton(selector) {
-  const btn = document.querySelector(selector);
-  if (btn) {
-    btn.click();
-    return true;
+async function showGuestGateOverlay(container, siteSettings) {
+  if (document.querySelector(".elg-guest-gate-overlay")) {
+    return;
   }
-  return false;
+
+  addGateBlur();
+
+  let socialButtons = [];
+  try {
+    const loginMarkup = await fetchLoginMarkup();
+    socialButtons = extractAuthButtons(loginMarkup);
+  } catch {
+    socialButtons = [];
+  }
+
+  const html = buildOverlayHtml(siteSettings, buildSocialButtons(socialButtons));
+  document.body.insertAdjacentHTML("beforeend", html);
+  attachOverlayEvents(container);
 }
 
 export default {
@@ -116,46 +222,6 @@ export default {
   initialize(container) {
     withPluginApi("1.34.0", (api) => {
       const siteSettings = container.lookup("service:site-settings");
-
-      observeModalClose();
-
-      const applicationController = (() => {
-        try {
-          return container.lookup("controller:application");
-        } catch {
-          return null;
-        }
-      })();
-
-      const openLoginModal = () => {
-        addGateBlur();
-
-        if (applicationController?.send) {
-          applicationController.send("showLogin");
-          decorateLoginModal(siteSettings);
-          return;
-        }
-
-        if (openViaHeaderButton(".header-buttons .login-button, .login-button")) {
-          decorateLoginModal(siteSettings);
-          return;
-        }
-      };
-
-      const openSignupModal = () => {
-        addGateBlur();
-
-        if (applicationController?.send) {
-          applicationController.send("showCreateAccount");
-          decorateLoginModal(siteSettings);
-          return;
-        }
-
-        if (openViaHeaderButton(".header-buttons .sign-up-button, .sign-up-button")) {
-          decorateLoginModal(siteSettings);
-          return;
-        }
-      };
 
       const shouldRunGuestGate = () => {
         if (!siteSettings.guest_gate_enabled) {
@@ -170,8 +236,7 @@ export default {
           return false;
         }
 
-        const path = currentPath();
-        return isQualifyingPath(path, siteSettings);
+        return isQualifyingPath(currentPath(), siteSettings);
       };
 
       const incrementGuestPageCount = () => {
@@ -188,8 +253,9 @@ export default {
         sessionStorage.setItem(COUNT_KEY, String(count + 1));
       };
 
-      const maybeOpenPageGate = () => {
+      const maybeOpenPageGate = async () => {
         if (!shouldRunGuestGate()) {
+          removeOverlay();
           return;
         }
 
@@ -202,49 +268,37 @@ export default {
           return;
         }
 
-        if (count >= threshold && !sessionStorage.getItem(PAGE_GATE_OPEN_KEY)) {
-          sessionStorage.setItem(PAGE_GATE_OPEN_KEY, "1");
-          openLoginModal();
+        if (count >= threshold && !sessionStorage.getItem(OVERLAY_SHOWN_KEY)) {
+          sessionStorage.setItem(OVERLAY_SHOWN_KEY, "1");
+          await showGuestGateOverlay(container, siteSettings);
         }
       };
 
       const clickHandler = (event) => {
         const opener = event.target.closest("[data-elg-open]");
-        if (opener) {
-          event.preventDefault();
-
-          const action = opener.dataset.elgOpen;
-          if (action === "login") {
-            openLoginModal();
-          } else if (action === "signup") {
-            openSignupModal();
-          }
-          return;
-        }
-      };
-
-      const keyHandler = (event) => {
-        if (event.key !== "Enter" && event.key !== " ") {
-          return;
-        }
-
-        const opener = event.target.closest("[data-elg-open]");
-        if (!opener) {
+        if (!opener || opener.closest(".elg-guest-gate-overlay")) {
           return;
         }
 
         event.preventDefault();
 
+        const applicationController = (() => {
+          try {
+            return container.lookup("controller:application");
+          } catch {
+            return null;
+          }
+        })();
+
         const action = opener.dataset.elgOpen;
-        if (action === "login") {
-          openLoginModal();
-        } else if (action === "signup") {
-          openSignupModal();
+        if (action === "login" && applicationController?.send) {
+          applicationController.send("showLogin");
+        } else if (action === "signup" && applicationController?.send) {
+          applicationController.send("showCreateAccount");
         }
       };
 
       document.addEventListener("click", clickHandler);
-      document.addEventListener("keydown", keyHandler);
 
       api.onPageChange(() => {
         maybeOpenPageGate();
@@ -254,7 +308,6 @@ export default {
 
       api.cleanupStream(() => {
         document.removeEventListener("click", clickHandler);
-        document.removeEventListener("keydown", keyHandler);
       });
     });
   },
