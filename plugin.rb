@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 # name: discourse-external-link-gate
-# about: Hide external links and gated content from guests or non-entitled groups
-# version: 0.2
-# authors: Pedro
-# url: https://storefront.com.ng 
+# about: Hide external links from guests and show login/register prompts instead
+# version: 0.3
+# authors: Greatbenny
+# url: https://github.com/Greatbenny/discourse-external-link-gate
 
 enabled_site_setting :external_link_gate_enabled
 
