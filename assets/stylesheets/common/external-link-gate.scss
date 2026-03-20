@@ -70,9 +70,111 @@ html.elg-gate-screen .topic-area,
 html.elg-gate-screen .topic-post,
 html.elg-gate-screen .topic-body,
 html.elg-gate-screen .topic-map,
-html.elg-gate-screen .discourse-adplugin {
+html.elg-gate-screen .topic-avatar,
+html.elg-gate-screen .topic-meta-data {
   filter: blur(6px);
 }
+
+.elg-guest-gate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+}
+
+.elg-guest-gate-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(230, 230, 230, 0.58);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.elg-guest-gate-card {
+  position: absolute;
+  left: 50%;
+  top: 43%;
+  transform: translate(-50%, -50%);
+  width: 510px;
+  max-width: calc(100vw - 32px);
+  background: #f7f7f7;
+  border: 1px solid #d2d2d2;
+  border-radius: 4px;
+  box-shadow: 0 2px 18px rgba(0, 0, 0, 0.16);
+  text-align: center;
+  padding: 32px 28px 26px;
+}
+
+.elg-guest-gate-heading {
+  color: #555;
+  font-size: 20px;
+  line-height: 1.35;
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+
+.elg-guest-gate-intro {
+  color: #666;
+  font-size: 16px;
+  line-height: 1.45;
+  margin-bottom: 22px;
+}
+
+.elg-auth-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+
+.elg-auth-or {
+  color: #999;
+  font-size: 14px;
+}
+
+.elg-auth-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid #d2d2d2;
+  border-radius: 2px;
+  background: #fff;
+  color: #555;
+  text-decoration: none;
+  box-shadow: none;
+}
+
+.elg-guest-gate-footer {
+  color: #888;
+  font-size: 14px;
+}
+
+.elg-footer-link {
+  background: transparent;
+  border: 0;
+  color: #888;
+  cursor: pointer;
+  padding: 0;
+  font-size: 14px;
+}
+
+.elg-footer-link:hover {
+  text-decoration: underline;
+}
+
+.elg-footer-sep {
+  margin: 0 8px;
+  color: #aaa;
+}
+
+
+
+
+
+
 
 html.elg-gate-screen body::before {
   content: "";
